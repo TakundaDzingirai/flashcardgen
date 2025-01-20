@@ -1,4 +1,4 @@
-// FlashcardSession.js
+import "../src/styles.css"
 import React from "react";
 import Flashcard from "./FlashCard";
 

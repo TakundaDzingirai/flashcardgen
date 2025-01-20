@@ -1,0 +1,171 @@
+/* General App Styling */
+.App {
+    font-family: "Inter", Arial, sans-serif;
+    text-align: center;
+    background-color: #f4f4f9;
+    min-height: 100vh;
+
+    /* Center your content both horizontally and vertically */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    /* Some padding around the edges */
+    padding: 20px;
+}
+
+/* Main Heading */
+.App h2 {
+    margin: 10px 0 20px;
+    font-size: 2rem;
+    color: #333;
+}
+
+/* Flashcard Container */
+.flashcard-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px auto;
+}
+
+/* Flashcard Styling */
+.flashcard {
+    width: 350px;
+    height: 220px;
+    border-radius: 10px;
+    background-color: #ffffff;
+
+    /* Drop shadow for a card-like appearance */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+    /* Flip animation setup */
+    transition: transform 0.5s;
+    transform-style: preserve-3d;
+    cursor: pointer;
+    position: relative;
+    perspective: 1000px;
+    /* Perspective for flipping */
+}
+
+.flashcard:hover {
+    /* Slight scale on hover for a more interactive feel (optional) */
+    transform: scale(1.02);
+}
+
+.flashcard.flipped {
+    transform: rotateY(180deg);
+}
+
+.flashcard .front,
+.flashcard .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.flashcard .front {
+    background-color: #ffffff;
+}
+
+.flashcard .back {
+    background-color: #dfe6e9;
+    transform: rotateY(180deg);
+}
+
+/* Flashcard Text Styling */
+.flashcard h2 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.flashcard p {
+    font-size: 1rem;
+    color: #555;
+    text-align: center;
+}
+
+/* Input Field Styling */
+input[type="number"],
+input[type="text"] {
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 80%;
+    max-width: 300px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+/* Button Styling */
+button {
+    padding: 10px 20px;
+    margin: 10px 5px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease, background-color 0.3s ease;
+    font-size: 1rem;
+}
+
+/* Hover effect for all buttons */
+button:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Primary Submit Button */
+.submit-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.submit-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Review Buttons */
+.review-buttons button {
+    background-color: #f1c40f;
+    color: white;
+}
+
+.review-buttons button:hover {
+    background-color: #d4ac0d;
+}
+
+/* Feedback Text Styling */
+.correct {
+    color: #27ae60;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.incorrect {
+    color: #e74c3c;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .flashcard {
+        width: 300px;
+        height: 200px;
+    }
+
+    input[type="number"],
+    input[type="text"] {
+        width: 90%;
+    }
+}

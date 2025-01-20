@@ -1,6 +1,6 @@
 // StudentIdInput.js
 import React from "react";
-
+import "../src/styles.css"
 const StudentIdInput = ({ studentId, onChange }) => {
     return (
         <input
