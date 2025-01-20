@@ -17,45 +17,72 @@ const App = () => {
   const [studentId, setStudentId] = useState("");
   const [flashcards, setFlashcards] = useState([]);
   const [currentCard, setCurrentCard] = useState(null);
+
+  // States for user input and feedback
   const [answer, setAnswer] = useState("");
   const [isAnswerChecked, setIsAnswerChecked] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
 
-  // Set up initial flashcards on mount and whenever studentId changes
-  useEffect(() => {
-    const mistakeFlashcards = createFlashcardsFromMistakes(Data);
-    setFlashcards(mistakeFlashcards);
+  // Once the user picks a difficulty rating, set this to true
+  const [hasGradedCard, setHasGradedCard] = useState(false);
 
-    if (studentId) {
-      const dueFlashcards = filterFlashcards(studentId, mistakeFlashcards);
-      setCurrentCard(selectNextCard(dueFlashcards));
-      setIsAnswerChecked(false);
-      setAnswer("");
+  // On mount, attempt to load existing flashcards from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem("flashcards");
+    if (stored) {
+      setFlashcards(JSON.parse(stored));
     } else {
-      // If no student ID, reset states
-      setFlashcards([]);
-      setCurrentCard(null);
+      setFlashcards(createFlashcardsFromMistakes(Data));
     }
+  }, []);
+
+  // Whenever `flashcards` changes, just store them in localStorage
+  useEffect(() => {
+    if (flashcards.length > 0) {
+      localStorage.setItem("flashcards", JSON.stringify(flashcards));
+    }
+  }, [flashcards]);
+
+  // Whenever STUDENT ID changes, load the first "due" card for that student
+  useEffect(() => {
+    if (!studentId) {
+      setCurrentCard(null);
+      return;
+    }
+    const dueCards = filterFlashcards(studentId, flashcards);
+    setCurrentCard(selectNextCard(dueCards));
+
+    // Reset states for a fresh start on a new student's session
+    setIsAnswerChecked(false);
+    setIsCorrect(false);
+    setHasGradedCard(false);
+    setAnswer("");
   }, [studentId]);
 
+  // Check answer correctness
   const handleCheckAnswer = () => {
+    if (!currentCard) return;
     const userAnswer = answer.trim().toLowerCase();
     const correctAnswer = currentCard.Corrected_Sentence.trim().toLowerCase();
-    setIsCorrect(userAnswer === correctAnswer);
+    const result = userAnswer === correctAnswer;
+
+    setIsCorrect(result);
     setIsAnswerChecked(true);
   };
 
+  // Handle spaced repetition review (Easy/Medium/Hard)
   const handleReview = (grade) => {
-    const updatedCard = { ...currentCard };
+    if (!currentCard) return;
 
-    // Calculate how many flashcards are currently due
+    // Apply spaced repetition logic
+    const updatedCard = { ...currentCard };
     const size_cards = filterFlashcards(studentId, flashcards).length;
 
     if (grade === "easy") {
       updatedCard.interval = Math.ceil(
         updatedCard.interval * updatedCard.easeFactor + size_cards
       );
-      updatedCard.easeFactor += 0.15;
+      updatedCard.easeFactor = Math.min(updatedCard.easeFactor + 0.15, 2.5); // Limit max easeFactor
     } else if (grade === "medium") {
       updatedCard.interval = Math.ceil(
         updatedCard.interval * updatedCard.easeFactor + size_cards / 2
@@ -66,34 +93,62 @@ const App = () => {
         1,
         Math.ceil(updatedCard.interval * updatedCard.easeFactor + 1)
       );
-      updatedCard.easeFactor = Math.max(1.3, updatedCard.easeFactor - 0.15);
+      updatedCard.easeFactor = Math.max(1.3, updatedCard.easeFactor - 0.15); // Minimum easeFactor
     }
 
-    // Update last reviewed date
     updatedCard.lastReviewed = dayjs().format();
+    updatedCard.attempts += 1;
+    if (isCorrect) updatedCard.correctCount += 1;
 
-    // Update global flashcards list
+    // Replace old card with updated card in `flashcards`
     const updatedFlashcards = flashcards.map((fc) =>
-      fc.Original_Sentence === currentCard.Original_Sentence ? updatedCard : fc
+      fc.Original_Sentence === currentCard.Original_Sentence
+        ? updatedCard
+        : fc
     );
-
     setFlashcards(updatedFlashcards);
 
-    // Pick the next card
-    const nextDue = filterFlashcards(studentId, updatedFlashcards);
+    // Just mark that we've graded this card. Don't move on yet.
+    setHasGradedCard(true);
+  };
+
+  // User clicks "Next Card"
+  const handleNextCard = () => {
+    // Now we pick the next card
+    const nextDue = filterFlashcards(studentId, flashcards);
     setCurrentCard(selectNextCard(nextDue));
+
+    // Reset states
     setIsAnswerChecked(false);
+    setIsCorrect(false);
+    setHasGradedCard(false);
     setAnswer("");
   };
 
+  // Progress calculation
+  const studentCards = flashcards.filter(
+    (fc) => fc.Student_ID === parseInt(studentId, 10)
+  );
+  const totalAttempts = studentCards.reduce((sum, fc) => sum + fc.attempts, 0);
+  const totalCorrect = studentCards.reduce((sum, fc) => sum + fc.correctCount, 0);
+  const accuracy =
+    totalAttempts > 0 ? ((totalCorrect / totalAttempts) * 100).toFixed(1) : 0;
+
   return (
     <div className="App">
-      <h2>Spaced Repetition Flashcard App</h2>
+      <h2 className="app-heading">Progress Grammar Flashcard App</h2>
 
-      <StudentIdInput
-        studentId={studentId}
-        onChange={(value) => setStudentId(value)}
-      />
+      <StudentIdInput studentId={studentId} onChange={setStudentId} />
+
+      {/* Display a quick progress summary for the current student */}
+      {studentId && (
+        <div style={{ marginTop: "10px", marginBottom: "20px" }}>
+          <h3>Progress for Student {studentId}</h3>
+          <p>Attempts: {totalAttempts}</p>
+          <p>Correct: {totalCorrect}</p>
+          <p>Accuracy: {accuracy}%</p>
+        </div>
+      )}
 
       {currentCard ? (
         <FlashcardSession
@@ -102,11 +157,36 @@ const App = () => {
           onAnswerChange={setAnswer}
           isAnswerChecked={isAnswerChecked}
           isCorrect={isCorrect}
+          hasGradedCard={hasGradedCard}
           onCheckAnswer={handleCheckAnswer}
           onReview={handleReview}
+          onNextCard={handleNextCard}
         />
       ) : (
         studentId && <p>No flashcards due for Student ID {studentId}</p>
+      )}
+
+      {/* Optional: Show a detailed list of all flashcards with their attempts/correct */}
+      {studentId && studentCards.length > 0 && (
+        <div style={{ marginTop: "30px" }}>
+          <h3>Detailed Flashcard Stats</h3>
+          <ul style={{ textAlign: "left", listStyle: "none", padding: 0 }}>
+            {studentCards.map((fc) => {
+              const cardAccuracy = fc.attempts
+                ? ((fc.correctCount / fc.attempts) * 100).toFixed(1)
+                : 0;
+              return (
+                <li key={fc.Original_Sentence} style={{ margin: "6px 0" }}>
+                  <strong>Original:</strong> {fc.Original_Sentence}
+                  <br />
+                  <strong>Attempts:</strong> {fc.attempts},{" "}
+                  <strong>Correct:</strong> {fc.correctCount},{" "}
+                  <strong>Accuracy:</strong> {cardAccuracy}%
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       )}
     </div>
   );

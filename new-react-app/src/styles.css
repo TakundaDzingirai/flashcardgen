@@ -2,24 +2,13 @@
 .App {
     font-family: "Inter", Arial, sans-serif;
     text-align: center;
-    background-color: #f4f4f9;
+    background-color: #ffff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     min-height: 100vh;
-
-    /* Center your content both horizontally and vertically */
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-
-    /* Some padding around the edges */
     padding: 20px;
-}
-
-/* Main Heading */
-.App h2 {
-    margin: 10px 0 20px;
-    font-size: 2rem;
-    color: #333;
 }
 
 /* Flashcard Container */
@@ -35,28 +24,21 @@
     width: 350px;
     height: 220px;
     border-radius: 10px;
-    background-color: #ffffff;
-
-    /* Drop shadow for a card-like appearance */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-
-    /* Flip animation setup */
+    background-color: #f5d3d7;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
     transition: transform 0.5s;
     transform-style: preserve-3d;
     cursor: pointer;
     position: relative;
     perspective: 1000px;
-    /* Perspective for flipping */
 }
 
-.flashcard:hover {
-    /* Slight scale on hover for a more interactive feel (optional) */
-    transform: scale(1.02);
-}
-
-.flashcard.flipped {
+/* Flip example (if you want flipping) */
+/*
+  .flashcard.flipped {
     transform: rotateY(180deg);
-}
+  }
+  */
 
 .flashcard .front,
 .flashcard .back {
@@ -73,31 +55,33 @@
     box-sizing: border-box;
 }
 
-.flashcard .front {
-    background-color: #ffffff;
-}
-
 .flashcard .back {
     background-color: #dfe6e9;
     transform: rotateY(180deg);
 }
 
-/* Flashcard Text Styling */
+/* Flashcard Text */
 .flashcard h2 {
-    font-size: 1.2rem;
+    font-size: 18px;
     color: #333;
     margin-bottom: 10px;
 }
 
 .flashcard p {
-    font-size: 1rem;
+    font-size: 16px;
     color: #555;
     text-align: center;
 }
 
-/* Input Field Styling */
-input[type="number"],
-input[type="text"] {
+/* Answer Section / Input */
+.answer-section {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.answer-input {
     padding: 10px;
     margin: 10px 0;
     border: 1px solid #ccc;
@@ -108,7 +92,7 @@ input[type="text"] {
     font-size: 1rem;
 }
 
-/* Button Styling */
+/* Buttons */
 button {
     padding: 10px 20px;
     margin: 10px 5px;
@@ -119,12 +103,11 @@ button {
     font-size: 1rem;
 }
 
-/* Hover effect for all buttons */
 button:hover {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-/* Primary Submit Button */
+/* Submit Button */
 .submit-btn {
     background-color: #007bff;
     color: white;
@@ -141,10 +124,10 @@ button:hover {
 }
 
 .review-buttons button:hover {
-    background-color: #d4ac0d;
+    background-color: #14d40d;
 }
 
-/* Feedback Text Styling */
+/* Feedback Text */
 .correct {
     color: #27ae60;
     font-weight: bold;
@@ -157,15 +140,36 @@ button:hover {
     margin-top: 10px;
 }
 
-/* Responsive Design */
+/* App Heading Styling */
+.app-heading {
+    font-family: 'Arial', sans-serif;
+    font-size: 2.5rem;
+    /* Adjust for size */
+    font-weight: bold;
+    color: #007bff;
+    /* Primary color */
+    text-align: center;
+    /* Center align the heading */
+    margin-bottom: 20px;
+    /* Add spacing below the heading */
+    text-transform: uppercase;
+    /* Make all letters uppercase */
+    letter-spacing: 2px;
+    /* Add spacing between letters */
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    /* Gradient text */
+    padding: 10px;
+}
+
 @media (max-width: 768px) {
     .flashcard {
         width: 300px;
         height: 200px;
     }
 
-    input[type="number"],
-    input[type="text"] {
+    .answer-input {
         width: 90%;
     }
 }
